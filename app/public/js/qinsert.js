@@ -38,7 +38,7 @@ var myIndex;
 function setIndex(data) {
 	myIndex = data.index;
 	$('#welcome').hide();
-	$('#start_div').show();
+	$('#start').show();
 }
 
 function sendStart() {
@@ -48,7 +48,8 @@ function sendStart() {
 }
 
 function start(data) {
-	console.log('starting game with ' + data.num + ' players');
+	$('#start').hide();
+	$('#game').show();
 }
 
 var endpoints = {
