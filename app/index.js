@@ -1,12 +1,8 @@
 var express = require('express');
-var bodyParser = require('body-parser');
 
 var app = express();
-app.use(bodyParser.json());
 
-var qinsert = require('./qinsert');
-
-app.use('/', qinsert);
+app.use(express.static('public'));
 
 app.use(function(err, req, res, next) {
 	console.error('index err', err.stack);
