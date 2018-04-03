@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/dcep93/qinsert/issues"
   },
-  "homepage": "https://github.com/dcep93/qinsert#readme"
+  "homepage": "https://github.com/dcep93/qinsert#readme",
+  "dependencies": {
+    "socket.io": "^2.1.0"
+  }
 }
