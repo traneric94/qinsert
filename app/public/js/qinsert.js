@@ -1,8 +1,7 @@
 // (function() {
 function main() {
-	$('#name_input_submit').click(register);
-	$('#start_submit').click(sendStart);
-	register(); // dev
+	$('#name_input_form').submit(register);
+	$('#start_host').submit(sendStart);
 }
 
 var socket;
@@ -32,6 +31,7 @@ function register() {
 		console.log('connected');
 	});
 	socket.on('message', receive);
+	return false;
 }
 
 var isHost;
@@ -52,6 +52,7 @@ function join(data) {
 
 function sendStart() {
 	send({ endpoint: 'start', players: players });
+	return false;
 }
 
 function start(data) {
