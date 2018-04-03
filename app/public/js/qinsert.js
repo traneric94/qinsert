@@ -14,6 +14,7 @@ function send(data) {
 function receive(data) {
 	var endpoint = endpoints[data.endpoint];
 	if (endpoint) {
+		console.log(data.endpoint);
 		endpoint(data);
 	} else {
 		console.log('receive', data);
