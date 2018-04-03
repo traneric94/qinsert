@@ -10,7 +10,7 @@ var io = socket.listen(server);
 var clientIndex = 0;
 io.on('connection', function(client) {
 	console.log('connection', client.id);
-	client.send({ index: clientIndex });
+	client.send({ endpoint: 'setIndex', index: clientIndex });
 	clientIndex++;
 	client.on('message', function(data) {
 		console.log('message', data);
