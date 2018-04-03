@@ -34,26 +34,35 @@ function register() {
 	socket.on('message', receive);
 }
 
+var isHost;
 var myIndex;
+var players = [];
 function setIndex(data) {
 	myIndex = data.index;
+	isHost = myIndex === 0;
+	var name = $('#name_input').val();
+	send({ endpoint: 'join', index: myIndex, name: name });
 	$('#welcome').hide();
-	$('#start').show();
+	$(isHost ? '#start_submit' : '#start_wait').show();
+}
+
+function join(data) {
+	players[data.index] = data.name;
 }
 
 function sendStart() {
-	$.get('num', function(numPlayers) {
-		send({ endpoint: 'start', num: numPlayers });
-	});
+	send({ endpoint: 'start', players: players });
 }
 
 function start(data) {
+	players = data.players;
 	$('#start').hide();
 	$('#game').show();
 }
 
 var endpoints = {
 	setIndex: setIndex,
+	join: join,
 	start: start,
 };
 
