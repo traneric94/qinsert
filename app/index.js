@@ -7,8 +7,11 @@ var app = express();
 var server = http.createServer(app);
 var io = socket.listen(server);
 
+var clientIndex = 0;
 io.on('connection', function(client) {
 	console.log('connection', client.id);
+	client.send({ index: clientIndex });
+	clientIndex++;
 	client.on('message', function(data) {
 		console.log('message', data);
 		client.broadcast.emit('message', data);
@@ -16,6 +19,11 @@ io.on('connection', function(client) {
 });
 
 app.use(express.static('public'));
+
+app.use('/reset', function(req, res) {
+	clientIndex = 0;
+	res.sendStatus(200);
+});
 
 app.use(function(err, req, res, next) {
 	console.error('index err', err.stack);

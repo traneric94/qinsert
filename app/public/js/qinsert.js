@@ -1,13 +1,13 @@
 // (function() {
 function main() {
 	$('#name_input_submit').submit(register);
-	register();
+	register(); // dev
 }
 
-var myName;
+var myIndex;
 var socket;
 function register() {
-	if (myName !== undefined) {
+	if (myIndex !== undefined) {
 		console.log('already registered!');
 		return;
 	}
@@ -23,8 +23,21 @@ function send(data) {
 }
 
 function receive(data) {
-	console.log('receive', data);
+	var endpoint = endpoints[data.endpoint];
+	if (endpoint) {
+		endpoint(data);
+	} else {
+		console.log('receive', data);
+	}
 }
+
+function setIndex(data) {
+	myIndex = data.index;
+}
+
+var endpoints = {
+	index: setIndex,
+};
 
 $(document).ready(main);
 // })();
