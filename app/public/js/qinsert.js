@@ -15,10 +15,12 @@ function register() {
 	socket.on('connect', function() {
 		console.log('connected');
 	});
-	socket.on('event', receive);
+	socket.on('message', receive);
 }
 
-function send(data) {}
+function send(data) {
+	socket.send(data);
+}
 
 function receive(data) {
 	console.log('receive', data);

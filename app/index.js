@@ -9,6 +9,10 @@ var io = socket.listen(server);
 
 io.on('connection', function(client) {
 	console.log('connection', client.id);
+	client.on('message', function(data) {
+		console.log('message', data);
+		client.broadcast.emit('message', data);
+	});
 });
 
 app.use(express.static('public'));
