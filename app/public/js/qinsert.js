@@ -1,13 +1,14 @@
 // (function() {
 function main() {
-	$('#name_input_submit').submit(register);
-	$('#start_submit').submit(start);
+	$('#name_input_submit').click(register);
+	$('#start_submit').click(sendStart);
 	register(); // dev
 }
 
 var socket;
 
 function send(data) {
+	receive(data);
 	socket.send(data);
 }
 
@@ -40,12 +41,19 @@ function setIndex(data) {
 	$('#start_div').show();
 }
 
-function start() {
-	send({ endpoint: 'start' });
+function sendStart() {
+	$.get('num', function(numPlayers) {
+		send({ endpoint: 'start', num: numPlayers });
+	});
+}
+
+function start(data) {
+	console.log('starting game with ' + data.num + ' players');
 }
 
 var endpoints = {
 	setIndex: setIndex,
+	start: start,
 };
 
 $(document).ready(main);

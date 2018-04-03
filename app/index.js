@@ -20,6 +20,10 @@ io.on('connection', function(client) {
 
 app.use(express.static('public'));
 
+app.use('/num', function(req, res) {
+	res.send(clientIndex.toString());
+});
+
 app.use('/reset', function(req, res) {
 	clientIndex = 0;
 	res.sendStatus(200);
