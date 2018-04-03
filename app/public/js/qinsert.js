@@ -27,7 +27,7 @@ function register() {
 		console.log('already registered!');
 		return;
 	}
-	socket = io(location.href);
+	socket = io();
 	socket.on('connect', function() {
 		console.log('connected');
 	});
@@ -43,7 +43,7 @@ function setIndex(data) {
 	var name = $('#name_input').val();
 	send({ endpoint: 'join', index: myIndex, name: name });
 	$('#welcome').hide();
-	$(isHost ? '#start_submit' : '#start_wait').show();
+	$(isHost ? '#start_host' : '#start_wait').show();
 }
 
 function join(data) {

@@ -1,17 +1,31 @@
 var express = require('express');
 var socket = require('socket.io');
 var http = require('http');
+var eSession = require('express-session');
+var sharedsession = require('express-socket.io-session');
 
 var app = express();
 
 var server = http.createServer(app);
 var io = socket.listen(server);
 
-var clientIndex = 0;
+var session = eSession({ secret: '*', resave: true, saveUninitialized: true });
+
+app.use(session);
+io.use(sharedsession(session, { autoSave: true }));
+
+var nextIndex = 0;
 io.on('connection', function(client) {
-	console.log('connection', client.id);
-	client.send({ endpoint: 'setIndex', index: clientIndex });
-	clientIndex++;
+	if (client.handshake.session.index === undefined) {
+		console.log('new client', nextIndex);
+		client.handshake.session.index = nextIndex;
+		client.handshake.session.save();
+		nextIndex++;
+	}
+	client.send({
+		endpoint: 'setIndex',
+		index: client.handshake.session.index,
+	});
 	client.on('message', function(data) {
 		console.log('message', data);
 		client.broadcast.emit('message', data);
@@ -19,11 +33,6 @@ io.on('connection', function(client) {
 });
 
 app.use(express.static('public'));
-
-app.use('/reset', function(req, res) {
-	clientIndex = 0;
-	res.sendStatus(200);
-});
 
 app.use(function(err, req, res, next) {
 	console.error('index err', err.stack);
