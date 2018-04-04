@@ -150,6 +150,10 @@ function play() {
 	var correct = isCorrect(pickIndex, position);
 	board.splice(position, 0, pickIndex);
 	if (!correct) {
+		if (terms.length === 0) {
+			send({ endpoint: 'alert', alert: 'Uh oh, we ran out of cards!' });
+			return;
+		}
 		players[myIndex].hand.push(terms.shift());
 		board.sort();
 	}
@@ -190,12 +194,17 @@ function nextTurn(data) {
 	render();
 }
 
+function alertF(data) {
+	alert(data.alert);
+}
+
 var endpoints = {
 	setIndex: setIndex,
 	join: join,
 	start: start,
 	nextTurn: nextTurn,
 	victory: victory,
+	alert: alertF,
 };
 
 $(document).ready(main);
