@@ -59,7 +59,8 @@ function join(data) {
 function sendStart() {
 	var setId = $('#set_id').val();
 	$.get('/query?id=' + setId, function(response) {
-		orderedTerms = response;
+		$('#set_title').text(response.title);
+		orderedTerms = response.terms;
 		deal();
 		send({
 			endpoint: 'start',
@@ -113,8 +114,9 @@ function render() {
 	});
 	$('#hand').empty();
 	players[myIndex].hand.forEach(function(index) {
-		$('<button>')
-			.text(orderedTerms[index].word)
+		$('<div>')
+			.append($('<button>').text(orderedTerms[index].word))
+			.append($('<img>').attr('src', orderedTerms[index].image))
 			.addClass('hand_card')
 			.click(pick)
 			.appendTo('#hand');
@@ -127,6 +129,7 @@ function render() {
 		$('<div>')
 			.append($('<p>').text(orderedTerms[index].word))
 			.append($('<p>').text(orderedTerms[index].definition))
+			.append($('<img>').attr('src', orderedTerms[index].image))
 			.appendTo('#board');
 	});
 	$('<button>')

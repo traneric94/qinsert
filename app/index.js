@@ -33,42 +33,66 @@ io.on('connection', function(client) {
 	});
 });
 
+var apiUrl = 'https://quizlet.com/webapi/3.1/';
+var termsUrl = apiUrl + 'terms?filters[isDeleted]=0&filters[setId]=';
+var setUrl = apiUrl + 'sets/';
+var searchUrl = setUrl + 'search?filters[isDeleted]=0&perPage=9&query=';
+// TODO dont use personal cs-token
+var qs = { 'Cs-Token': 'gDyaUUgrcjXjbJ3e2X5QYc' };
 app.get('/query', function(req, res) {
 	var setId = req.query.id;
-	var url =
-		'https://quizlet.com/webapi/3.1/terms?filters[isDeleted]=0&filters[setId]=' +
-		setId;
-	request(
-		{
-			uri: url,
-			// TODO dont use personal cs-token
-			qs: { 'Cs-Token': 'gDyaUUgrcjXjbJ3e2X5QYc' },
-			method: 'GET',
-		},
-		function(error, resp, body) {
-			if (error || resp.statusCode !== 200) {
-				console.log(url);
-				console.error('error', error);
-				console.error(JSON.stringify(JSON.parse(body), null, 2));
-			} else {
-				var response = JSON.parse(body).responses[0];
-				var rawTerms = response.models.term;
-				var terms = rawTerms
-					.map(function(term) {
-						return {
-							word: term.word,
-							definition: term.definition,
-							index: term.rank,
-						};
-					})
-					.sort(function(t1, t2) {
-						return t1.index - t2.index;
-					});
-				res.send(terms);
-			}
-		}
-	);
+	if (!(Number(setId) > 0)) {
+		var query = setId;
+		get(searchUrl + query, function(response) {
+			setId = response.models.set[0].id;
+			getSet(setId, res);
+		});
+	} else {
+		getSet(setId, res);
+	}
 });
+
+function get(url, callback) {
+	request({ uri: url, qs: qs, method: 'GET' }, function(error, resp, body) {
+		if (error || resp.statusCode !== 200) {
+			console.log(query);
+			console.error('error', error);
+			console.error(JSON.stringify(JSON.parse(body), null, 2));
+		} else {
+			var response = JSON.parse(body).responses[0];
+			callback(response);
+		}
+	});
+}
+
+function getSet(setId, res) {
+	var title;
+	var terms;
+	get(termsUrl + setId, function(response) {
+		var rawTerms = response.models.term;
+		terms = rawTerms
+			.map(function(term) {
+				return {
+					word: term.word,
+					definition: term.definition,
+					index: term.rank,
+					image: term._imageUrl,
+				};
+			})
+			.sort(function(t1, t2) {
+				return t1.index - t2.index;
+			});
+		if (title !== undefined) {
+			res.send({ title: title, terms: terms });
+		}
+	});
+	get(setUrl + setId, function(response) {
+		title = response.models.set[0].title;
+		if (terms !== undefined) {
+			res.send({ title: title, terms: terms });
+		}
+	});
+}
 
 app.use(express.static('public'));
 
