@@ -3,6 +3,7 @@ var socket = require('socket.io');
 var http = require('http');
 var eSession = require('express-session');
 var sharedsession = require('express-socket.io-session');
+var request = require('request');
 
 var app = express();
 
@@ -30,6 +31,43 @@ io.on('connection', function(client) {
 		console.log('message', data);
 		client.broadcast.emit('message', data);
 	});
+});
+
+app.get('/query', function(req, res) {
+	var setId = req.query.id;
+	var url =
+		'https://quizlet.com/webapi/3.1/terms?filters[isDeleted]=0&filters[setId]=' +
+		setId;
+	request(
+		{
+			uri: url,
+			// TODO dont use personal cs-token
+			qs: { 'Cs-Token': 'gDyaUUgrcjXjbJ3e2X5QYc' },
+			method: 'GET',
+		},
+		function(error, resp, body) {
+			if (error || resp.statusCode !== 200) {
+				console.log(url);
+				console.error('error', error);
+				console.error(JSON.stringify(JSON.parse(body), null, 2));
+			} else {
+				var response = JSON.parse(body).responses[0];
+				var rawTerms = response.models.term;
+				var terms = rawTerms
+					.map(function(term) {
+						return {
+							word: term.word,
+							definition: term.definition,
+							index: term.rank,
+						};
+					})
+					.sort(function(t1, t2) {
+						return t1.index - t2.index;
+					});
+				res.send(terms);
+			}
+		}
+	);
 });
 
 app.use(express.static('public'));
