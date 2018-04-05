@@ -89,7 +89,13 @@ function deal() {
 	for (var i = 0; i < startingBoardSize; i++) {
 		board.push(terms.shift());
 	}
-	board.sort();
+	sortBoard();
+}
+
+function sortBoard() {
+	board.sort(function(a, b) {
+		return a - b;
+	});
 }
 
 function start(data) {
@@ -158,7 +164,7 @@ function play() {
 			return;
 		}
 		players[myIndex].hand.push(terms.shift());
-		board.sort();
+		sortBoard();
 	}
 	var endpoint;
 	if (correct && players[myIndex].hand.length === 0) {
