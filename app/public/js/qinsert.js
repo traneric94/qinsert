@@ -57,9 +57,10 @@ function join(data) {
 }
 
 function sendStart() {
-	var setId = $('#set_id').val();
+	var setId = $('#set_id_input').val();
 	$.get('/query?id=' + setId, function(response) {
 		$('#set_title').text(response.title);
+		$('#set_id').text(response.id);
 		orderedTerms = response.terms;
 		deal();
 		send({

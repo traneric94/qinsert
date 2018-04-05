@@ -68,6 +68,9 @@ function get(url, callback) {
 function getSet(setId, res) {
 	var title;
 	var terms;
+	function sendSet() {
+		res.send({ title: title, terms: terms, id: setId });
+	}
 	get(termsUrl + setId, function(response) {
 		var rawTerms = response.models.term;
 		terms = rawTerms
@@ -83,13 +86,13 @@ function getSet(setId, res) {
 				return t1.index - t2.index;
 			});
 		if (title !== undefined) {
-			res.send({ title: title, terms: terms });
+			sendSet();
 		}
 	});
 	get(setUrl + setId, function(response) {
 		title = response.models.set[0].title;
 		if (terms !== undefined) {
-			res.send({ title: title, terms: terms });
+			sendSet();
 		}
 	});
 }

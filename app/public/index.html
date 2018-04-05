@@ -21,13 +21,16 @@
 	</div>
 	<div id="start">
 		<form id="start_host" hidden>
-			<input id="set_id" type="text">
+			<input id="set_id_input" type="text">
 			<input type="submit">
 		</form>
 		<p id="start_wait" hidden>Waiting for host to start game...</p>
 	</div>
 	<div id="game" hidden>
-		<div id="set_title"></div>
+		<div id="set_info">
+			<p id="set_title"></p>
+			<p id="set_id"></p>
+		</div>
 		<div id="current_player"></div>
 		<div id="players"></div>
 		<div id="hand"></div>
