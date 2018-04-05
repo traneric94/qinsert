@@ -59,12 +59,12 @@ function join(data) {
 function sendStart() {
 	var setId = $('#set_id_input').val();
 	$.get('/query?id=' + setId, function(response) {
-		$('#set_title').text(response.title);
-		$('#set_id').text(response.id);
 		orderedTerms = response.terms;
 		deal();
 		send({
 			endpoint: 'start',
+			title: response.title,
+			setId: response.id,
 			players: players,
 			orderedTerms: orderedTerms,
 			board: board,
@@ -100,6 +100,8 @@ function sortBoard() {
 }
 
 function start(data) {
+	$('#set_title').text(data.title);
+	$('#set_id').text(data.id);
 	players = data.players;
 	board = data.board;
 	orderedTerms = data.orderedTerms;
