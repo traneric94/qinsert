@@ -130,6 +130,7 @@ function render() {
 	$('#hand').empty();
 	players[myIndex].hand.forEach(function(index) {
 		$('<div>')
+			.addClass('center-parent')
 			.addClass('bubble')
 			.addClass('card')
 			.append($('<button>').text(orderedTerms[index].word))
@@ -143,6 +144,7 @@ function render() {
 	board.forEach(function(index, position) {
 		makeBoardButton();
 		$('<div>')
+			.addClass('center-parent')
 			.addClass('bubble')
 			.addClass('card')
 			.append($('<p>').text(orderedTerms[index].word))

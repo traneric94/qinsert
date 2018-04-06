@@ -2,11 +2,20 @@
 	padding: 25px;
 }
 
+* {
+	font-size: 20pt;
+}
+
 .bubble {
 	border-radius: 25px;
 	border: 2px solid black;
 	padding: 23px;
 	margin: 23px;
+}
+
+.center-parent > * {
+	display: block;
+	margin: auto;
 }
 
 .inline {
