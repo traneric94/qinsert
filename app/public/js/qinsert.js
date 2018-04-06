@@ -5,7 +5,6 @@ var startingBoardSize = 3;
 function main() {
 	$('#name_input_form').submit(register);
 	$('#start_host').submit(sendStart);
-	register();
 }
 
 var socket;
@@ -33,8 +32,6 @@ function register() {
 	socket = io();
 	socket.on('connect', function() {
 		console.log('connected');
-		join({ index: 1, name: 'other dan' });
-		sendStart();
 	});
 	socket.on('message', receive);
 	return false;
