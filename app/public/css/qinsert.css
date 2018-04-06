@@ -35,12 +35,18 @@ p {
 	cursor: pointer;
 }
 
+.hand_card.selected {
+	background-color: grey;
+}
+
 .board-button {
+	width: 280px;
+	height: 400px;
 	background-color: blue;
 }
 
 .answer_img {
-	position: absolute;
+	position: fixed;
 	height: 100%;
 	right: 0;
 	top: 0;
