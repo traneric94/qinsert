@@ -103,7 +103,7 @@ function sortBoard() {
 
 function start(data) {
 	$('#set_title').text(data.title);
-	$('#set_id').text(data.id);
+	$('#set_id').text(data.setId);
 	players = data.players;
 	board = data.board;
 	orderedTerms = data.orderedTerms;
