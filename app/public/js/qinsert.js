@@ -180,7 +180,10 @@ function play() {
 	var position = $(this).index() / 2;
 	var correct = isCorrect(pickIndex, position);
 	board.splice(position, 0, pickIndex);
-	if (!correct) {
+	if (correct) {
+		showImg('#correct_answer');
+	} else {
+		showImg('#wrong_answer');
 		if (terms.length === 0) {
 			send({ endpoint: 'alert', alert: 'Uh oh, we ran out of cards!' });
 			return;
@@ -211,11 +214,26 @@ function isCorrect(pickIndex, position) {
 	return true;
 }
 
+function showImg(selector) {
+	$(selector).animate(
+		{ 'margin-right': '-100%' },
+		{
+			duration: 1200,
+			easing: 'linear',
+			done: function() {
+				$(selector).css('margin-right', '100%');
+			},
+		}
+	);
+}
+
 function victory(data) {
 	players = data.players;
 	board = data.board;
 	render();
-	alert(players[currentPlayer].name + ' has won!');
+	$('#game').hide();
+	$('#game_end').show();
+	$('#winner').text(players[currentPlayer].name);
 }
 
 function nextTurn(data) {

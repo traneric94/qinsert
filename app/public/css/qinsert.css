@@ -38,3 +38,12 @@ p {
 .board-button {
 	background-color: blue;
 }
+
+.answer_img {
+	position: absolute;
+	height: 100%;
+	right: 0;
+	top: 0;
+	margin-right: 100%;
+	opacity: 0.6;
+}
