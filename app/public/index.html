@@ -9,34 +9,47 @@
 	<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-	<div id="welcome">
-		<div>
-			Welcome to QInsert!
+	<div id="page">
+		<div id="welcome" class="bubble">
+			<div>
+				Welcome to QInsert!
+			</div>
+			<div>
+				<p>Enter your name to get started.</p>
+			</div>
+			<form id="name_input_form">
+				<input id="name_input" type="text" value="dan">
+				<input type="submit">
+			</form>
 		</div>
-		<div>
-			<p>Enter your name to get started.</p>
+		<div id="start" class="bubble" hidden>
+			<form id="start_host" hidden>
+				<input id="set_id_input" type="text" value="277971331">
+				<input type="submit">
+			</form>
+			<p id="start_wait" hidden>Waiting for host to start game...</p>
 		</div>
-		<form id="name_input_form">
-			<input id="name_input" type="text" value="dan">
-			<input type="submit">
-		</form>
-	</div>
-	<div id="start">
-		<form id="start_host" hidden>
-			<input id="set_id_input" type="text" value="277971331">
-			<input type="submit">
-		</form>
-		<p id="start_wait" hidden>Waiting for host to start game...</p>
-	</div>
-	<div id="game" hidden>
-		<div id="set_info">
-			<p id="set_title"></p>
-			<p id="set_id"></p>
+		<div id="game" class="bubble" hidden>
+			<div>
+				<div id="set_info" class="bubble inline">
+					<p>Set Title: <span id="set_title"></span></p>
+					<p>Set Id: <span id="set_id"></span></p>
+					<p>Current Player: <span id="current_player"></span></p>
+				</div>
+				<div class="bubble inline">
+					<p>Players:</p>
+					<div id="players"></div>
+				</div>
+			<div>
+			<div class="bubble">
+				<p>Hand:</p>
+				<div id="hand" class="pack"></div>
+			</div>
+			<div class="bubble">
+				<p>Board:</p>
+				<div id="board" class="pack"></div>
+			</div>
 		</div>
-		<div id="current_player"></div>
-		<div id="players"></div>
-		<div id="hand"></div>
-		<div id="board"></div>
 	</div>
 </body>
 </html>

@@ -33,6 +33,7 @@ function register() {
 	socket = io();
 	socket.on('connect', function() {
 		console.log('connected');
+		join({ index: 1, name: 'other dan' });
 		sendStart();
 	});
 	socket.on('message', receive);
@@ -51,6 +52,7 @@ function setIndex(data) {
 	var name = $('#name_input').val();
 	send({ endpoint: 'join', index: myIndex, name: name });
 	$('#welcome').hide();
+	$('#start').show();
 	$(myIndex === 0 ? '#start_host' : '#start_wait').show();
 }
 
@@ -119,6 +121,8 @@ function render() {
 	$('#players').empty();
 	players.forEach(function(player) {
 		$('<div>')
+			.addClass('bubble')
+			.addClass('inline')
 			.append($('<p>').text('Name: ' + player.name))
 			.append($('<p>').text('Cards in Hand: ' + player.hand.length))
 			.appendTo('#players');
@@ -126,7 +130,10 @@ function render() {
 	$('#hand').empty();
 	players[myIndex].hand.forEach(function(index) {
 		$('<div>')
+			.addClass('bubble')
+			.addClass('card')
 			.append($('<button>').text(orderedTerms[index].word))
+			.append($('<br>'))
 			.append($('<img>').attr('src', orderedTerms[index].image))
 			.addClass('hand_card')
 			.click(pick)
@@ -134,16 +141,23 @@ function render() {
 	});
 	$('#board').empty();
 	board.forEach(function(index, position) {
-		$('<button>')
-			.click(play)
-			.appendTo('#board');
+		makeBoardButton();
 		$('<div>')
+			.addClass('bubble')
+			.addClass('card')
 			.append($('<p>').text(orderedTerms[index].word))
 			.append($('<p>').text(orderedTerms[index].definition))
 			.append($('<img>').attr('src', orderedTerms[index].image))
 			.appendTo('#board');
 	});
+	makeBoardButton();
+}
+
+function makeBoardButton() {
 	$('<button>')
+		.addClass('bubble')
+		.addClass('card')
+		.addClass('board-button')
 		.click(play)
 		.appendTo('#board');
 }

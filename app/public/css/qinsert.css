@@ -1,0 +1,31 @@
+#page {
+	padding: 25px;
+}
+
+.bubble {
+	border-radius: 25px;
+	border: 2px solid black;
+	padding: 23px;
+	margin: 23px;
+}
+
+.inline {
+	display: inline-block;
+}
+
+.pack {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+p {
+	max-width: 300px;
+}
+
+#hand .card {
+	cursor: pointer;
+}
+
+.board-button {
+	background-color: blue;
+}
