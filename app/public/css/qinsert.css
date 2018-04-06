@@ -42,7 +42,10 @@ p {
 .board-button {
 	width: 280px;
 	height: 400px;
-	background-color: blue;
+}
+
+.board-button:hover {
+	background-color: grey;
 }
 
 .answer_img {
@@ -51,5 +54,5 @@ p {
 	right: 0;
 	top: 0;
 	margin-right: 100%;
-	opacity: 0.6;
+	opacity: 0.8;
 }
