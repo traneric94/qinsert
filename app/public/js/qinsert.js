@@ -130,7 +130,7 @@ function render() {
 			.addClass('center-parent')
 			.addClass('bubble')
 			.addClass('card')
-			.append($('<button>').text(orderedTerms[index].word))
+			.append($('<p>').text(orderedTerms[index].word))
 			.append($('<br>'))
 			.append($('<img>').attr('src', orderedTerms[index].image))
 			.addClass('hand_card')
