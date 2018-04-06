@@ -1,6 +1,6 @@
 // (function() {
 var startingHandSize = 4;
-var startingBoardSize = 12;
+var startingBoardSize = 8;
 
 function main() {
 	$('#name_input_form').submit(register);
