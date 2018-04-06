@@ -162,6 +162,10 @@ function makeBoardButton() {
 }
 
 function pick() {
+	if (myIndex !== currentPlayer) {
+		alert('Not your turn!');
+		return;
+	}
 	$('.hand_card').removeClass('selected');
 	$(this).addClass('selected');
 }
