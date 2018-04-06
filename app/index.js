@@ -107,7 +107,7 @@ app.use(function(req, res, next) {
 	res.sendStatus(404);
 });
 
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 8000;
 
 server.listen(port, function() {
 	console.log('listening on port ' + port);
