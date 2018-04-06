@@ -68,6 +68,7 @@ function sendStart() {
 			setId: response.id,
 			players: players,
 			orderedTerms: orderedTerms,
+			terms: terms,
 			board: board,
 		});
 	});
@@ -106,6 +107,7 @@ function start(data) {
 	players = data.players;
 	board = data.board;
 	orderedTerms = data.orderedTerms;
+	terms = data.terms;
 
 	render();
 
