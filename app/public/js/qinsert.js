@@ -179,11 +179,10 @@ function play() {
 	var pickIndex = players[myIndex].hand.splice(selectedIndex, 1)[0];
 	var position = $(this).index() / 2;
 	var correct = isCorrect(pickIndex, position);
+	var selector = correct ? '#correct_answer' : '#wrong_answer';
+	send({ endpoint: 'showImg', selector: selector });
 	board.splice(position, 0, pickIndex);
-	if (correct) {
-		showImg('#correct_answer');
-	} else {
-		showImg('#wrong_answer');
+	if (!correct) {
 		if (terms.length === 0) {
 			send({ endpoint: 'alert', alert: 'Uh oh, we ran out of cards!' });
 			return;
@@ -214,7 +213,8 @@ function isCorrect(pickIndex, position) {
 	return true;
 }
 
-function showImg(selector) {
+function showImg(data) {
+	var selector = data.selector;
 	$(selector).animate(
 		{ 'margin-right': '-100%' },
 		{
@@ -254,6 +254,7 @@ var endpoints = {
 	nextTurn: nextTurn,
 	victory: victory,
 	alert: alertF,
+	showImg: showImg,
 };
 
 $(document).ready(main);
