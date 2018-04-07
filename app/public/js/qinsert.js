@@ -1,6 +1,6 @@
 // (function() {
-var startingHandSize = 4;
-var startingBoardSize = 8;
+var startingHandSize = 6;
+var startingBoardSize = 5;
 
 var socket;
 
@@ -234,7 +234,7 @@ function isCorrect(pickIndex, position) {
 		}
 	}
 	if (position !== board.length) {
-		if (pickIndex > board[position + 1]) {
+		if (pickIndex > board[position]) {
 			return false;
 		}
 	}
