@@ -2,12 +2,28 @@
 var startingHandSize = 4;
 var startingBoardSize = 8;
 
+var socket;
+
+var currentPlayer = 0; // int
+var myIndex; // int
+var players = []; // [{name: string, hand: [int]}]
+var deck; // [int]
+var terms; // [{index: int, word: string, definition: string, image: string}]
+var board = []; // [int]
+
 function main() {
-	$('#name_input_form').submit(register);
+	connectSocket();
+	$('#register_form').submit(register);
 	$('#start_host').submit(sendStart);
 }
 
-var socket;
+function connectSocket() {
+	socket = io();
+	socket.on('connect', function() {
+		console.log('connected');
+	});
+	socket.on('message', receive);
+}
 
 function send(data) {
 	receive(data);
@@ -15,36 +31,26 @@ function send(data) {
 }
 
 function receive(data) {
-	var endpoint = endpoints[data.endpoint];
-	if (endpoint) {
-		console.log(data.endpoint);
-		endpoint(data);
+	var endpoint = data.endpoint;
+	var f = endpoints[endpoint];
+	if (f) {
+		console.log(endpoint);
+		f(data);
 	} else {
-		console.log('receive', data);
+		console.log('receive', endpoint, data);
 	}
 }
 
 function register() {
-	if (myIndex !== undefined) {
-		console.log('already registered!');
-		return;
-	}
-	socket = io();
-	socket.on('connect', function() {
-		console.log('connected');
-	});
-	socket.on('message', receive);
+	socket.emit('room', { endpoint: 'join', room: $('#room_input').val() });
 	return false;
 }
 
-var myIndex;
-var players = [];
-var terms;
-var orderedTerms;
-var currentPlayer = 0;
-var board = [];
-
-function setIndex(data) {
+function roomResponse(data) {
+	if (!data.accepted) {
+		alert('Room is closed.');
+		return;
+	}
 	myIndex = data.index;
 	var name = $('#name_input').val();
 	send({ endpoint: 'join', index: myIndex, name: name });
@@ -54,21 +60,34 @@ function setIndex(data) {
 }
 
 function join(data) {
-	players[data.index] = { name: data.name, hand: [] };
+	if (myIndex === 0) {
+		players[data.index] = { name: data.name, hand: [] };
+		send({ endpoint: 'updatePlayers', players: players });
+	}
+}
+
+function updatePlayers(data) {
+	players = data.players;
+	$('#start_players').empty();
+	players.forEach(function(player) {
+		$('<p>')
+			.text(player.name)
+			.appendTo('#start_players');
+	});
 }
 
 function sendStart() {
 	var setId = $('#set_id_input').val();
 	$.get('/query?id=' + setId, function(response) {
-		orderedTerms = response.terms;
+		terms = response.terms;
 		deal();
 		send({
 			endpoint: 'start',
 			title: response.title,
 			setId: response.id,
 			players: players,
-			orderedTerms: orderedTerms,
 			terms: terms,
+			deck: deck,
 			board: board,
 		});
 	});
@@ -76,7 +95,7 @@ function sendStart() {
 }
 
 function deal() {
-	terms = orderedTerms
+	deck = terms
 		.map(function(term) {
 			return term.index;
 		})
@@ -85,12 +104,12 @@ function deal() {
 		});
 	for (var i = 0; i < startingHandSize; i++) {
 		players.forEach(function(player) {
-			player.hand.push(terms.shift());
+			player.hand.push(deck.shift());
 		});
 	}
 
 	for (var i = 0; i < startingBoardSize; i++) {
-		board.push(terms.shift());
+		board.push(deck.shift());
 	}
 	sortBoard();
 }
@@ -106,8 +125,8 @@ function start(data) {
 	$('#set_id').text(data.setId);
 	players = data.players;
 	board = data.board;
-	orderedTerms = data.orderedTerms;
 	terms = data.terms;
+	deck = data.deck;
 
 	render();
 
@@ -132,9 +151,9 @@ function render() {
 			.addClass('center-parent')
 			.addClass('bubble')
 			.addClass('card')
-			.append($('<p>').text(orderedTerms[index].word))
+			.append($('<p>').text(terms[index].word))
 			.append($('<br>'))
-			.append($('<img>').attr('src', orderedTerms[index].image))
+			.append($('<img>').attr('src', terms[index].image))
 			.addClass('hand_card')
 			.click(pick)
 			.appendTo('#hand');
@@ -146,9 +165,9 @@ function render() {
 			.addClass('center-parent')
 			.addClass('bubble')
 			.addClass('card')
-			.append($('<p>').text(orderedTerms[index].word))
-			.append($('<p>').text(orderedTerms[index].definition))
-			.append($('<img>').attr('src', orderedTerms[index].image))
+			.append($('<p>').text(terms[index].word))
+			.append($('<p>').text(terms[index].definition))
+			.append($('<img>').attr('src', terms[index].image))
 			.appendTo('#board');
 	});
 	makeBoardButton();
@@ -185,20 +204,27 @@ function play() {
 	send({ endpoint: 'showImg', selector: selector });
 	board.splice(position, 0, pickIndex);
 	if (!correct) {
-		if (terms.length === 0) {
+		if (deck.length === 0) {
 			send({ endpoint: 'alert', alert: 'Uh oh, we ran out of cards!' });
 			return;
 		}
-		players[myIndex].hand.push(terms.shift());
+		players[myIndex].hand.push(deck.shift());
 		sortBoard();
 	}
 	var endpoint;
 	if (correct && players[myIndex].hand.length === 0) {
 		endpoint = 'victory';
 	} else {
-		endpoint = 'nextTurn';
+		endpoint = 'update';
+		currentPlayer = (currentPlayer + 1) % players.length;
 	}
-	send({ endpoint: endpoint, players: players, board: board });
+	send({
+		endpoint: endpoint,
+		players: players,
+		deck: deck,
+		board: board,
+		currentPlayer: currentPlayer,
+	});
 }
 
 function isCorrect(pickIndex, position) {
@@ -238,10 +264,11 @@ function victory(data) {
 	$('#winner').text(players[currentPlayer].name);
 }
 
-function nextTurn(data) {
+function update(data) {
 	players = data.players;
 	board = data.board;
-	currentPlayer = (currentPlayer + 1) % players.length;
+	currentPlayer = data.currentPlayer;
+	deck = data.deck;
 	render();
 }
 
@@ -250,10 +277,11 @@ function alertF(data) {
 }
 
 var endpoints = {
-	setIndex: setIndex,
+	roomResponse: roomResponse,
 	join: join,
+	updatePlayers: updatePlayers,
 	start: start,
-	nextTurn: nextTurn,
+	update: update,
 	victory: victory,
 	alert: alertF,
 	showImg: showImg,

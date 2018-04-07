@@ -15,23 +15,96 @@ var session = eSession({ secret: '*', resave: true, saveUninitialized: true });
 app.use(session);
 io.use(sharedsession(session, { autoSave: true }));
 
-var nextIndex = 0;
+var rooms = {}; // {string: {closed: bool, clients: {int: bool}}}
+var clientToRoom = {}; // int: string
+var nextId = 0;
 io.on('connection', function(client) {
-	if (client.handshake.session.index === undefined) {
-		console.log('new client', nextIndex);
-		client.handshake.session.index = nextIndex;
+	var clientId = client.handshake.session.id;
+	if (clientId === undefined) {
+		clientId = nextId++;
+		client.handshake.session.id = clientId;
 		client.handshake.session.save();
-		nextIndex++;
 	}
-	client.send({
-		endpoint: 'setIndex',
-		index: client.handshake.session.index,
+	var roomName = clientToRoom[clientId];
+	if (roomName !== undefined) {
+		rooms[roomName].clients[clientId] = true;
+		client.to(roomName).broadcast.emit({ endpoint: 'reconnect' });
+	}
+	client.on('disconnect', function() {
+		var roomName = clientToRoom[clientId];
+		if (roomName !== undefined) {
+			var clients = rooms[roomName].clients;
+			clients[clientId] = false;
+			setTimeout(function() {
+				checkClosedRoom(roomName);
+			}, 3000);
+		}
+	});
+	client.on('room', function(data) {
+		if (data.endpoint === 'join') {
+			if (clientToRoom[clientId] === undefined) {
+				var roomName = data.room;
+				if (roomName !== undefined) {
+					var room = rooms[roomName];
+					if (room && room.closed) {
+						client.send({
+							endpoint: 'roomResponse',
+							accepted: false,
+						});
+					} else {
+						if (!room) {
+							room = { closed: false, clients: [] };
+							rooms[roomName] = room;
+						}
+						var index = Object.keys(room.clients).length;
+						room.clients[clientId] = true;
+						clientToRoom[clientId] = roomName;
+						client.join(roomName);
+						client.send({
+							endpoint: 'roomResponse',
+							index: index,
+							accepted: true,
+						});
+					}
+					return;
+				}
+			}
+		} else if (data.endpoint === 'leave') {
+			var roomName = clientToRoom[clientId];
+			if (roomName !== undefined) {
+				delete rooms[roomName].clients[clientId];
+				delete clientToRoom[clientId];
+				checkClosedRoom(roomName);
+				return;
+			}
+		} else if (data.endpoint === 'close') {
+			var roomName = clientToRoom[clientId];
+			if (roomName !== undefined) {
+				rooms[roomName].closed = true;
+			}
+		}
+		console.log('room', data);
 	});
 	client.on('message', function(data) {
-		console.log('message', data);
-		client.broadcast.emit('message', data);
+		var roomName = clientToRoom[clientId];
+		console.log('message', roomName, data);
+		if (roomName !== undefined) {
+			client.to(roomName).broadcast.emit('message', data);
+		}
 	});
 });
+
+function checkClosedRoom(roomName) {
+	var clients = rooms[roomName].clients;
+	for (var otherClientId in clients) {
+		if (clients[otherClientId]) return;
+	}
+	console.log('closing room', roomName);
+	for (var otherClientId in clients) {
+		delete clientToRoom[otherClientId];
+	}
+	delete rooms[roomName];
+}
 
 var apiUrl = 'https://quizlet.com/webapi/3.1/';
 var termsUrl = apiUrl + 'terms?filters[isDeleted]=0&filters[setId]=';
